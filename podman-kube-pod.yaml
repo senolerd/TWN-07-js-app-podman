@@ -1,14 +1,33 @@
-
 # This file can be used with kubectl create -f to import it into Kubernetes. 
 # Also useable with Podman kube play -f to create a pod from this file.
 #
 # Created with podman-5.8.2
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: js-app-config
+data:
+  ME_CONFIG_BASICAUTH_ENABLED: "true"
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: js-app-secret
+data:
+  MONGO_INITDB_ROOT_USERNAME: YWRtaW4= # base64 encoded value of "admin"
+  MONGO_INITDB_ROOT_PASSWORD: cGFzc3dvcmQ= # base64 encoded value of "password"
+  ME_CONFIG_MONGODB_URL: bW9uZ29kYjovL2FkbWluOnBhc3N3b3JkQDEyNy4wLjAuMTo3MjAxNy8= # base64 encoded value of "mongodb://admin:password@127.0.0.1:27017/"
+  ME_CONFIG_BASICAUTH_ENABLED: dHJ1ZQ== # base64 encoded value of "true"
+  ME_CONFIG_BASICAUTH_USERNAME: bW9uZ3VzZXI= # base64 encoded value of "mongouser"
+  ME_CONFIG_BASICAUTH_PASSWORD: bW9uZ3VzZXJwYXNz # base64 encoded value of "mongouserpass"
+  
+---
+
+apiVersion: v1
 kind: Pod
 metadata:
-  annotations:
-    io.kubernetes.cri-o.SandboxID/frontend: 46c12bb4d2fc8f740077523c0289a44220252b7359c76352ed0d1bda5648530c
-  creationTimestamp: "2026-06-13T08:48:24Z"
   labels:
     app: js-app
   name: js-app
@@ -16,21 +35,32 @@ spec:
   restartPolicy: Always
   containers:
     - name: frontend
-      image: localhost/js-app:latest        
+      image: localhost/js-app:latest
+      env:
+        - name: MONGO_URL
+          valueFrom:
+            secretKeyRef:
+              name: js-app-secret
+              key: ME_CONFIG_MONGODB_URL     
       ports:
         - containerPort: 3000
           hostPort: 3000
       args:
         - node
         - server.js
-
     - name: mongo-server
       image: docker.io/library/mongo:latest
       env:
         - name: MONGO_INITDB_ROOT_USERNAME
-          value: admin # apps hardcoded user accout
+          valueFrom:
+            secretKeyRef:
+              name: js-app-secret
+              key: MONGO_INITDB_ROOT_USERNAME
         - name: MONGO_INITDB_ROOT_PASSWORD
-          value: password #apps hard-coded user password 
+          valueFrom:
+            secretKeyRef:
+              name: js-app-secret
+              key: MONGO_INITDB_ROOT_PASSWORD
 
     - name: mongo-express
       image: docker.io/mongo-express:latest
@@ -39,11 +69,23 @@ spec:
           hostPort: 18081
       env:
         - name: ME_CONFIG_MONGODB_URL
-          value: mongodb://admin:password@127.0.0.1:27017/
+          valueFrom:
+            secretKeyRef:
+              name: js-app-secret
+              key: ME_CONFIG_MONGODB_URL
         - name: ME_CONFIG_BASICAUTH_ENABLED
-          value: true
+          valueFrom:
+            configMapKeyRef:
+              name: js-app-config
+              key: ME_CONFIG_BASICAUTH_ENABLED
         - name: ME_CONFIG_BASICAUTH_USERNAME
-          value: mongouser
+          valueFrom:
+            secretKeyRef:
+              name: js-app-secret
+              key: ME_CONFIG_BASICAUTH_USERNAME
         - name: ME_CONFIG_BASICAUTH_PASSWORD
-          value: mongouserpass
+          valueFrom:
+            secretKeyRef:
+              name: js-app-secret
+              key: ME_CONFIG_BASICAUTH_PASSWORD
 
