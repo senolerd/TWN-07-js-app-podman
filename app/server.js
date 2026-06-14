@@ -21,7 +21,7 @@ app.get('/profile-picture', function (req, res) {
 });
 
 // use when starting application locally with node command
-let mongoUrlLocal = "mongodb://admin:password@localhost:27017";
+let mongoUrlLocal = "mongodb://admin:password@127.0.0.1:27017";
 
 // use when starting application as docker container, part of docker-compose
 let mongoUrlDockerCompose = "mongodb://admin:password@mongodb";
@@ -76,7 +76,7 @@ app.post('/update-profile', function (req, res) {
   res.send(userObj);
 });
 
-app.listen(3000, function () {
+app.listen(3000,'192.168.1.90', function () {
   console.log("app listening on port 3000!");
 });
 
