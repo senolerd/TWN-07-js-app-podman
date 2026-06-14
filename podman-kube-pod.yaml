@@ -1,0 +1,48 @@
+# Save the output of this file and use kubectl create -f to import
+# it into Kubernetes. Also useable with Podman kube play -f to create a pod from this file.
+#
+# Created with podman-5.8.2
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    io.kubernetes.cri-o.SandboxID/frontend: 46c12bb4d2fc8f740077523c0289a44220252b7359c76352ed0d1bda5648530c
+  creationTimestamp: "2026-06-13T08:48:24Z"
+  labels:
+    app: js-app
+  name: js-app
+spec:
+  restartPolicy: Always
+  containers:
+    - name: frontend
+      image: localhost/js-app:latest        
+      ports:
+        - containerPort: 3000
+          hostPort: 3000
+      args:
+        - node
+        - server.js
+
+    - name: mongo-server
+      image: docker.io/library/mongo:latest
+      env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: admin # apps hardcoded user accout
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: password #apps hard-coded user password 
+
+    - name: mongo-express
+      image: docker.io/mongo-express:latest
+      ports:
+        - containerPort: 8081
+          hostPort: 18081
+      env:
+        - name: ME_CONFIG_MONGODB_URL
+          value: mongodb://admin:password@127.0.0.1:27017/
+        - name: ME_CONFIG_BASICAUTH_ENABLED
+          value: true
+        - name: ME_CONFIG_BASICAUTH_USERNAME
+          value: mongouser
+        - name: ME_CONFIG_BASICAUTH_PASSWORD
+          value: mongouserpass
+
