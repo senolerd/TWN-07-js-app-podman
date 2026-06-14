@@ -16,12 +16,11 @@ kind: Secret
 metadata:
   name: js-app-secret
 data:
-  MONGO_INITDB_ROOT_USERNAME: YWRtaW4= # base64 encoded value of "admin"
-  MONGO_INITDB_ROOT_PASSWORD: cGFzc3dvcmQ= # base64 encoded value of "password"
-  ME_CONFIG_MONGODB_URL: bW9uZ29kYjovL2FkbWluOnBhc3N3b3JkQDEyNy4wLjAuMTo3MjAxNy8= # base64 encoded value of "mongodb://admin:password@127.0.0.1:27017/"
-  ME_CONFIG_BASICAUTH_ENABLED: dHJ1ZQ== # base64 encoded value of "true"
-  ME_CONFIG_BASICAUTH_USERNAME: bW9uZ3VzZXI= # base64 encoded value of "mongouser"
-  ME_CONFIG_BASICAUTH_PASSWORD: bW9uZ3VzZXJwYXNz # base64 encoded value of "mongouserpass"
+  MONGO_INITDB_ROOT_USERNAME: "YWRtaW4=" # base64 encoded value of "admin"
+  MONGO_INITDB_ROOT_PASSWORD: "cGFzc3dvcmQ=" # base64 encoded value of "password"
+  ME_CONFIG_MONGODB_URL: "bW9uZ29kYjovL2FkbWluOnBhc3N3b3JkQDEyNy4wLjAuMToyNzAxNwo=" # base64 encoded value of "mongodb://admin:password@127.0.0.1:27017"
+  ME_CONFIG_BASICAUTH_USERNAME: "bW9uZ291c2Vy" # base64 encoded value of "mongouser". Use echo -n "mongouser" | base64 to get the encoded value.
+  ME_CONFIG_BASICAUTH_PASSWORD: "bW9uZ291c2VycGFzcw==" # base64 encoded value of "mongouserpass" Use echo -n "mongouserpass" | base64 to get the encoded value.
   
 ---
 
@@ -68,22 +67,39 @@ spec:
         - containerPort: 8081
           hostPort: 18081
       env:
+        - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+          valueFrom:
+            secretKeyRef:
+              name: js-app-secret
+              key: MONGO_INITDB_ROOT_USERNAME
+
+        - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: js-app-secret
+              key: MONGO_INITDB_ROOT_PASSWORD
+
         - name: ME_CONFIG_MONGODB_URL
           valueFrom:
             secretKeyRef:
               name: js-app-secret
               key: ME_CONFIG_MONGODB_URL
+
         - name: ME_CONFIG_BASICAUTH_ENABLED
           valueFrom:
             configMapKeyRef:
               name: js-app-config
               key: ME_CONFIG_BASICAUTH_ENABLED
+
         - name: ME_CONFIG_BASICAUTH_USERNAME
+          # value: "mongouser"
           valueFrom:
             secretKeyRef:
               name: js-app-secret
               key: ME_CONFIG_BASICAUTH_USERNAME
+
         - name: ME_CONFIG_BASICAUTH_PASSWORD
+          # value: "mongouserpass"
           valueFrom:
             secretKeyRef:
               name: js-app-secret
