@@ -8,9 +8,7 @@ metadata:
   name: js-app-config
 data:
   ME_CONFIG_BASICAUTH_ENABLED: "true"
-
 ---
-
 apiVersion: v1
 kind: Secret
 metadata:
@@ -21,9 +19,7 @@ data:
   ME_CONFIG_MONGODB_URL: "bW9uZ29kYjovL2FkbWluOnBhc3N3b3JkQDEyNy4wLjAuMToyNzAxNwo=" # base64 encoded value of "mongodb://admin:password@127.0.0.1:27017"
   ME_CONFIG_BASICAUTH_USERNAME: "bW9uZ291c2Vy" # base64 encoded value of "mongouser". Use echo -n "mongouser" | base64 to get the encoded value.
   ME_CONFIG_BASICAUTH_PASSWORD: "bW9uZ291c2VycGFzcw==" # base64 encoded value of "mongouserpass" Use echo -n "mongouserpass" | base64 to get the encoded value.
-  
 ---
-
 apiVersion: v1
 kind: Pod
 metadata:
