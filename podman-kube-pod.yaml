@@ -1,5 +1,6 @@
-# Save the output of this file and use kubectl create -f to import
-# it into Kubernetes. Also useable with Podman kube play -f to create a pod from this file.
+
+# This file can be used with kubectl create -f to import it into Kubernetes. 
+# Also useable with Podman kube play -f to create a pod from this file.
 #
 # Created with podman-5.8.2
 apiVersion: v1
