@@ -68,4 +68,11 @@ Step 7: Access you nodejs application UI from browser
 
 This will create a Pod with 3 container. The manifest file is created by using Pod resource, but is completely feasible to change to Deployment to benefir ReplicaSet.
 
-Application fronted node application is accesable at http://{HOST_IP}:3000 and mongo-express is accessabe at http://{HOST_IP}:18081
+
+Frontend node application is accesable at 
+
+    http://{HOST_IP}:3000 
+
+mongo-express is accessabe at 
+
+    http://{HOST_IP}:18081
