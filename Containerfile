@@ -3,4 +3,4 @@ WORKDIR /app
 COPY app .
 RUN npm install && npm audit fix
 EXPOSE 3000
-CMD ["sleep", "infinity"]
+CMD ["npm", "start"]
