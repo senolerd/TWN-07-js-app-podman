@@ -14,11 +14,18 @@ kind: Secret
 metadata:
   name: js-app-secret
 data:
-  MONGO_INITDB_ROOT_USERNAME: "YWRtaW4=" # base64 encoded value of "admin"
-  MONGO_INITDB_ROOT_PASSWORD: "cGFzc3dvcmQ=" # base64 encoded value of "password"
-  ME_CONFIG_MONGODB_URL: "bW9uZ29kYjovL2FkbWluOnBhc3N3b3JkQDEyNy4wLjAuMToyNzAxNwo=" # base64 encoded value of "mongodb://admin:password@127.0.0.1:27017"
-  ME_CONFIG_BASICAUTH_USERNAME: "bW9uZ291c2Vy" # base64 encoded value of "mongouser". Use echo -n "mongouser" | base64 to get the encoded value.
-  ME_CONFIG_BASICAUTH_PASSWORD: "bW9uZ291c2VycGFzcw==" # base64 encoded value of "mongouserpass" Use echo -n "mongouserpass" | base64 to get the encoded value.
+  # base64 encoded value of "admin"
+  MONGO_INITDB_ROOT_USERNAME: "YWRtaW4=" 
+  # base64 encoded value of "password"
+  MONGO_INITDB_ROOT_PASSWORD: "cGFzc3dvcmQ="
+  # base64 encoded value of "mongodb://admin:password@127.0.0.1:27017"
+  # node:20-alpine is tend to use ipv6 localhost address, so we need to use ipv4 address to avoid connection issues. 
+  # Use 127.0.0.1 instead of localhost to ensure that the application can connect to the MongoDB server without issues related to hostname resolution.
+  ME_CONFIG_MONGODB_URL: "bW9uZ29kYjovL2FkbWluOnBhc3N3b3JkQDEyNy4wLjAuMToyNzAxNwo=" 
+  # base64 encoded value of "mongouser". Use echo -n "mongouser" | base64 to get the encoded value.
+  ME_CONFIG_BASICAUTH_USERNAME: "bW9uZ291c2Vy" 
+  # base64 encoded value of "mongouserpass" Use echo -n "mongouserpass" | base64 to get the encoded value.
+  ME_CONFIG_BASICAUTH_PASSWORD: "bW9uZ291c2VycGFzcw==" 
 ---
 apiVersion: v1
 kind: Pod
@@ -56,7 +63,9 @@ spec:
             secretKeyRef:
               name: js-app-secret
               key: MONGO_INITDB_ROOT_PASSWORD
-
+      volumemounts:
+        - name: mongo-data
+          mountPath: /data/db
     - name: mongo-express
       image: docker.io/mongo-express:latest
       ports:
@@ -68,36 +77,34 @@ spec:
             secretKeyRef:
               name: js-app-secret
               key: MONGO_INITDB_ROOT_USERNAME
-
         - name: ME_CONFIG_MONGODB_ADMINPASSWORD
           valueFrom:
             secretKeyRef:
               name: js-app-secret
               key: MONGO_INITDB_ROOT_PASSWORD
-
         - name: ME_CONFIG_MONGODB_URL
           valueFrom:
             secretKeyRef:
               name: js-app-secret
               key: ME_CONFIG_MONGODB_URL
-
         - name: ME_CONFIG_BASICAUTH_ENABLED
           valueFrom:
             configMapKeyRef:
               name: js-app-config
               key: ME_CONFIG_BASICAUTH_ENABLED
-
         - name: ME_CONFIG_BASICAUTH_USERNAME
           # value: "mongouser"
           valueFrom:
             secretKeyRef:
               name: js-app-secret
               key: ME_CONFIG_BASICAUTH_USERNAME
-
         - name: ME_CONFIG_BASICAUTH_PASSWORD
           # value: "mongouserpass"
           valueFrom:
             secretKeyRef:
               name: js-app-secret
               key: ME_CONFIG_BASICAUTH_PASSWORD
-
+  volumes:
+    - name: mongo-data
+      persistentVolumeClaim:
+        claimName: mongo-pvc
