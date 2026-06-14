@@ -76,7 +76,7 @@ app.post('/update-profile', function (req, res) {
   res.send(userObj);
 });
 
-app.listen(3000,'192.168.1.90', function () {
+app.listen(3000, function () {
   console.log("app listening on port 3000!");
 });
 
